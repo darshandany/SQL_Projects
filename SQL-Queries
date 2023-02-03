@@ -9,3 +9,6 @@ Counting number of working days exlcuding both weekends & goverment holidays
           on holiday_date between create_date and resolved_date
           group by ticket_id,create_date,resolved_date 
            ) a
+	   
+	   
+	   
