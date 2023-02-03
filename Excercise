@@ -1,0 +1,11 @@
+Counting number of working days exlcuding both weekends & goverment holidays
+
+->select *,DATEDIFF(day,create_date,resolved_date) as actual_days
+          ,DATEDIFF(wk,create_date,resolved_date) as actual_weeks 
+		      ,DATEDIFF(day,create_date,resolved_date)-2*DATEDIFF(wk,create_date,resolved_date)-holi as bs_days
+          from ( 
+          select ticket_id,create_date,resolved_date,count(holiday_date) as holi
+          from tickets left join holidays
+          on holiday_date between create_date and resolved_date
+          group by ticket_id,create_date,resolved_date 
+           ) a
