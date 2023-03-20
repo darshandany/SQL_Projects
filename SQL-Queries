@@ -1,6 +1,6 @@
-Counting number of working days exlcuding both weekends & goverment holidays
+-> Counting number of working days exlcuding both weekends & goverment holidays
 
-->select *,DATEDIFF(day,create_date,resolved_date) as actual_days
+          select *,DATEDIFF(day,create_date,resolved_date) as actual_days
           ,DATEDIFF(wk,create_date,resolved_date) as actual_weeks 
 		      ,DATEDIFF(day,create_date,resolved_date)-2*DATEDIFF(wk,create_date,resolved_date)-holi as bs_days
           from ( 
@@ -9,6 +9,22 @@ Counting number of working days exlcuding both weekends & goverment holidays
           on holiday_date between create_date and resolved_date
           group by ticket_id,create_date,resolved_date 
            ) a
+
+
+
+-> Finding the altitude of the places in decreasing order
+	
+        with cte as ( select mh1.name as hut1, mh2.name as hut2, mh1.altitude as h1_alt,mh2.altitude as h2_alt
+	from trails t
+	inner join mountain_huts mh1 on t.hut1=mh1.id
+	inner join mountain_huts mh2 on t.hut2=mh2.id
+	) ,cte2 as ( select * from cte where h1_alt>h2_alt
+	union all
+	select hut2,hut1,h2_alt,h1_alt from cte where h1_alt<h2_alt )
+	select c1.hut1 as hut1, c1.hut2 as hut2, c2.hut2 as hut3 
+	from cte2 c1
+	inner join cte2 c2 on c1.hut2=c2.hut1 
+
 	   
 	   
 	   
