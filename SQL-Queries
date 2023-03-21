@@ -94,6 +94,27 @@
     SUM(CASE WHEN measurement_num % 2 = 0  THEN measurement_value ELSE 0 END) as even_sum
     FROM measurement_by_count
     GROUP BY measurement_day;
+
+-> Assume you are given the following tables on Walmart transactions and products. 
+   Find the number of unique product combinations that are purchased in the same transaction.
+   For example, if there are 2 transactions where apples and bananas are bought, and another transaction where bananas and soy milk are bought, 
+   my output would be 2 to represent the 2 unique combinations.
+
+
+
+ with cte as( 
+ SELECT t.transaction_id, t.product_id, p.product_name
+ FROM transactions t
+ inner join products p on t.product_id=p.product_id
+ ),cte1 as ( select transaction_id from cte 
+ GROUP BY transaction_id 
+ HAVING COUNT(transaction_id)>1 )
+,cte2 as(
+SELECT c.transaction_id,c.product_name
+from cte c
+inner join cte1 c1
+on c.transaction_id = c1.transaction_id 
+)select COUNT(DISTINCT product_name) as unique_pairs from cte2
 	   
 	   
 	   
