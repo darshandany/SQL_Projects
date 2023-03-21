@@ -29,6 +29,76 @@
 	from cte2 c1
 	inner join cte2 c2 on c1.hut2=c2.hut1 
 
+
+
+-> Finding the Average Rating Reviews
+	  
+	  SELECT 
+	  EXTRACT(MONTH FROM submit_date) AS mth,
+	  product_id,
+	  ROUND(AVG(stars), 2) AS avg_stars
+	  FROM reviews
+	  GROUP BY EXTRACT(MONTH FROM submit_date), product_id
+	  ORDER BY mth,product_id;
+
+
+
+-> Assume you are given the tables below containing information on Snapchat users, their ages, and their time spent sending and opening snaps. 
+   Write a query to obtain a breakdown of the time spent sending vs. opening snaps (as a percentage of total time spent on these activities) for each age group.
+
+	   with cte1 aS(
+	   SELECT 
+	   age.age_bucket, 
+	   SUM(CASE WHEN activities.activity_type = 'send' 
+	      THEN activities.time_spent ELSE 0 END) AS send_timespent, 
+	   SUM(
+	      CASE WHEN activities.activity_type= 'open' 
+	      THEN activities.time_spent ELSE 0 END) AS open_timespent, 
+	   SUM(activities.time_spent) AS total_timespent 
+	   FROM activities
+	   JOIN age_breakdown AS age 
+	   ON activities.user_id = age.user_id 
+	   WHERE activities.activity_type IN ('send', 'open') 
+	   GROUP BY age.age_bucket
+	   )
+	  select age_bucket,round(100*send_timespent/total_timespent,2) as send_perc,
+	  round(100*open_timespent/total_timespent,2) as Open_perc
+	  from cte1
+ 
+ 
+ 
+-> Calculate the 3-day rolling average of tweets published by each user for each date that a tweet was posted. 
+ Output the user id, tweet date, and rolling averages rounded to 2 decimal places.
+
+	  WITH tweet_count AS (
+	  SELECT user_id,tweet_date, 
+	  COUNT(tweet_id) AS tweet_num 
+	  FROM tweets 
+	  GROUP BY user_id,tweet_date
+	  )SELECT user_id,tweet_date,
+		ROUND(1*AVG(tweet_num) OVER (
+		PARTITION BY user_id ORDER BY tweet_date 
+		ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+	    ),2)AS rolling_avg_3d
+	   FROM tweet_count;
+
+
+
+-> Assume you are given the table containing measurement values obtained from a Google sensor over several days. 
+   Measurements are taken several times within a given day.
+   Write a query to obtain the sum of the odd-numbered and even-numbered measurements on a particular day, in two different columns. 
+   
+   
+    WITH measurement_by_count AS (
+    SELECT CAST(measurement_time AS date) AS measurement_day,measurement_value, 
+    ROW_NUMBER() OVER ( PARTITION BY CAST(measurement_time AS date) ORDER BY measurement_time )AS measurement_num 
+    FROM measurements
+    ) 
+    SELECT measurement_day,
+    SUM(CASE WHEN measurement_num % 2 != 0 THEN measurement_value ELSE 0 END) as odd_sum,
+    SUM(CASE WHEN measurement_num % 2 = 0  THEN measurement_value ELSE 0 END) as even_sum
+    FROM measurement_by_count
+    GROUP BY measurement_day;
 	   
 	   
 	   
